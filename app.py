@@ -32,18 +32,16 @@ filtered_data = delivery[delivery['Carrier'] == selected_carrier]
 st.subheader("Delay Rate by Carrier")
 delay_rate_by_carrier = delivery.groupby('Carrier')['is_late'].mean()
 st.bar_chart(delay_rate_by_carrier)
+st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
 
-# Delays by Product Category
-# Merge on 'Order_ID' with correct key and case matching
-#merged = pd.merge(orders, delivery, left_on='Order_ID', right_on='Order_ID')
 
-# Use correct column 'product_category' - check if it exists in orders, otherwise adjust accordingly
-#if 'product_category' in merged.columns:
-#    delay_by_category = merged.groupby('product_category')['is_late'].mean()
-#   st.subheader("Delays by Product Category")
-#    st.bar_chart(delay_by_category)
-#else:
-#    st.write("Column 'product_category' not found in orders dataset.")
+
+
+st.subheader("Proportion of Late vs On-Time Deliveries")
+pie_data = delivery['is_late'].value_counts()
+st.pyplot(pie_data.plot.pie(autopct='%1.1f%%', labels=['On-Time', 'Late'], legend=False, ylabel=''))
+st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
+
 
 # Ratings: Late vs On-Time, use exact column names with case sensitivity
 if 'Customer_Rating' in delivery.columns:
@@ -54,6 +52,7 @@ if 'Customer_Rating' in delivery.columns:
     ax.hist([late_ratings, ontime_ratings], label=['Late', 'On-Time'], bins=5, alpha=0.7)
     ax.legend()
     st.pyplot(fig)
+    st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
 else:
     st.write("Column 'Customer_Rating' not found in delivery dataset.")
 
@@ -65,6 +64,7 @@ if 'Order_ID' in delivery.columns and 'Order_ID' in costs.columns:
         avg_costs = merged_costs.groupby('is_late')['Delivery_Cost_INR'].mean()
         st.subheader("Cost Impact of Delays")
         st.bar_chart(avg_costs)
+        st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
     else:
         st.write("Column 'Delivery_Cost_INR' not found in cost breakdown dataset.")
 else:
@@ -86,5 +86,6 @@ if 'Delivery_Cost_INR' in merged_costs.columns:
     st.write(f"Estimated monthly saving with optimizer: ₹{potential_saving:.2f}")
 else:
     st.write("Cost information not available to estimate savings.")
+
 
 
