@@ -28,53 +28,56 @@ selected_carrier = st.selectbox("Filter by Carrier:", carrier_list)
 # Filter data based on selected carrier
 filtered_data = delivery[delivery['Carrier'] == selected_carrier]
 
-# Delay Rate by Carrier (use correct column name 'Carrier' with capital C)
+# Visualization 1: Delay Rate by Carrier
 st.subheader("Delay Rate by Carrier")
 delay_rate_by_carrier = delivery.groupby('Carrier')['is_late'].mean()
 st.bar_chart(delay_rate_by_carrier)
-st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
+st.markdown("**This chart shows average delay rates for each carrier, letting you spot which partners need attention.**")
 
-
-
-
+# Visualization 2: Proportion of Late vs On-Time Deliveries (Pie chart)
 st.subheader("Proportion of Late vs On-Time Deliveries")
 pie_data = delivery['is_late'].value_counts()
-st.pyplot(pie_data.plot.pie(autopct='%1.1f%%', labels=['On-Time', 'Late'], legend=False, ylabel=''))
-st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
+labels = ['On-Time', 'Late']
+fig, ax = plt.subplots()
+ax.pie(pie_data, labels=labels, autopct='%1.1f%%', startangle=90)
+ax.axis('equal')
+st.pyplot(fig)
+st.markdown("**This chart breaks down total deliveries into on-time and late, giving a sense of overall performance.**")
 
-
-# Ratings: Late vs On-Time, use exact column names with case sensitivity
+# Visualization 3: Ratings for Late vs On-Time Deliveries
 if 'Customer_Rating' in delivery.columns:
     st.subheader("Ratings: Late vs On-Time")
     late_ratings = delivery[delivery['is_late']]['Customer_Rating']
     ontime_ratings = delivery[~delivery['is_late']]['Customer_Rating']
     fig, ax = plt.subplots()
     ax.hist([late_ratings, ontime_ratings], label=['Late', 'On-Time'], bins=5, alpha=0.7)
+    ax.set_xlabel("Customer Rating")
+    ax.set_ylabel("Number of Deliveries")
     ax.legend()
     st.pyplot(fig)
-    st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
+    st.markdown("**This chart compares customer ratings for late vs on-time orders, showing the impact of delays on satisfaction.**")
 else:
     st.write("Column 'Customer_Rating' not found in delivery dataset.")
 
-# Cost Impact of Delays
-# Merge costs and delivery on 'Order_ID'
+# Visualization 4: Cost Impact of Delays
 if 'Order_ID' in delivery.columns and 'Order_ID' in costs.columns:
     merged_costs = pd.merge(delivery, costs, on='Order_ID')
     if 'Delivery_Cost_INR' in merged_costs.columns:
         avg_costs = merged_costs.groupby('is_late')['Delivery_Cost_INR'].mean()
         st.subheader("Cost Impact of Delays")
         st.bar_chart(avg_costs)
-        st.markdown("**This chart helps identify which carriers have the highest delay rates, supporting targeted improvements.**")
+        st.markdown("**This shows the average delivery cost for late vs on-time orders, helping analyze financial impact.**")
     else:
         st.write("Column 'Delivery_Cost_INR' not found in cost breakdown dataset.")
 else:
     st.write("Column 'Order_ID' missing in delivery or cost dataset.")
 
-# Current At-Risk Orders
-# Adjust logic because you don't have datetime columns but day counts, so remove this, or replace with simple late orders
+# Table: Current At-Risk Orders
 st.subheader("Current At-Risk Orders")
-at_risk = delivery[delivery['delay'] > 1]  # For example, orders delayed by more than 1 day
+# For example, orders delayed by more than 1 day
+at_risk = delivery[delivery['delay'] > 1]
 st.write(at_risk)
+st.markdown("**This table lists orders that are significantly delayed, enabling targeted follow-up.**")
 
 # Estimated Savings
 late_rate = delivery['is_late'].mean()
@@ -84,8 +87,6 @@ if 'Delivery_Cost_INR' in merged_costs.columns:
     potential_saving = late_rate * monthly_orders * avg_delay_cost * 0.2  # assume 20% drop with intervention
     st.subheader("Estimated Savings")
     st.write(f"Estimated monthly saving with optimizer: ₹{potential_saving:.2f}")
+    st.markdown("**Potential monthly savings calculated assuming a 20% reduction in late deliveries.**")
 else:
     st.write("Cost information not available to estimate savings.")
-
-
-
