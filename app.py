@@ -35,15 +35,15 @@ st.bar_chart(delay_rate_by_carrier)
 
 # Delays by Product Category
 # Merge on 'Order_ID' with correct key and case matching
-merged = pd.merge(orders, delivery, left_on='Order_ID', right_on='Order_ID')
+#merged = pd.merge(orders, delivery, left_on='Order_ID', right_on='Order_ID')
 
 # Use correct column 'product_category' - check if it exists in orders, otherwise adjust accordingly
-if 'product_category' in merged.columns:
-    delay_by_category = merged.groupby('product_category')['is_late'].mean()
-    st.subheader("Delays by Product Category")
-    st.bar_chart(delay_by_category)
-else:
-    st.write("Column 'product_category' not found in orders dataset.")
+#if 'product_category' in merged.columns:
+#    delay_by_category = merged.groupby('product_category')['is_late'].mean()
+#   st.subheader("Delays by Product Category")
+#    st.bar_chart(delay_by_category)
+#else:
+#    st.write("Column 'product_category' not found in orders dataset.")
 
 # Ratings: Late vs On-Time, use exact column names with case sensitivity
 if 'Customer_Rating' in delivery.columns:
@@ -86,4 +86,5 @@ if 'Delivery_Cost_INR' in merged_costs.columns:
     st.write(f"Estimated monthly saving with optimizer: ₹{potential_saving:.2f}")
 else:
     st.write("Cost information not available to estimate savings.")
+
 
